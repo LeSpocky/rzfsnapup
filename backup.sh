@@ -1,22 +1,24 @@
 #!/bin/sh
-#
-# Usage: $0 remotehost remotepath localzfs
 
-DAY_OF_MONTH=$(date +%d)
-DAY_OF_WEEK=$(date +%u)
+# get new svn revisions
+echo '> syncing fli4l repository'
+/usr/bin/svnsync sync file:///tank/backup/nettworks/svn/fli4l
+echo ''
 
-echo "> syncing ${1}:${2}"
-/usr/bin/rsync --stats -zaH --delete -e 'ssh -i /root/.ssh/backup' ${1}:${2}/ /${3}
-   
-if [ "${DAY_OF_MONTH}" = '12' ]
-then
-        echo '> creating monthly zfs snapshot'
-        /usr/sbin/zfSnap -v -s -S -a 2y ${3}
-elif [ "${DAY_OF_WEEK}" = '3' ]
-then
-        echo '> creating weekly zfs snapshot'
-        /usr/sbin/zfSnap -v -s -S -a 2m ${3}
-else
-        echo '> creating daily zfs snapshot'
-        /usr/sbin/zfSnap -v -s -S -a 2w ${3}
-fi
+# get new svn revisions
+echo '> syncing eisfair repository'
+/usr/bin/svnsync sync file:///tank/backup/nettworks/svn/eisfair
+echo ''
+
+# get new svn revisions
+echo '> syncing org repository'
+/usr/bin/svnsync sync file:///tank/backup/nettworks/svn/org
+echo ''
+
+# handle zfs snapshots
+if [ "$(date +%d)" = "13" ]
+then    
+        echo '> creating zfs snapshot'
+        /usr/bin/sudo -n /usr/sbin/zfSnap -v -s -S -a 1y tank/backup/nettworks/svn
+        echo ''
+fi      
