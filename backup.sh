@@ -1,12 +1,44 @@
 #!/bin/sh
-#
-# Usage: $0 remotehost remotepath localzfs
 
 # set paths here
 DATE='/bin/date'
 RSYNC='/usr/bin/rsync'
 SSH='/usr/bin/ssh'
 ZFSNAP='/usr/sbin/zfSnap'
+
+print_usage() {
+        echo "Usage: $0 remotehost remotepath localzfs"
+        echo ''
+        echo 'Options:'
+        echo '  -h             this help'
+        echo '  -s sparseconf  config file for sparse trees'
+}
+
+# we only use classic getopt because this runs on linux and freebsd
+ARGS=`getopt hs: $*`
+if [ $? -ne 0 ]
+then
+        print_usage
+        exit 2
+fi
+set -- $ARGS
+
+while true
+do
+        case "$1" in
+                -h)
+                        print_usage
+                        shift
+                        ;;
+                -s)
+                        echo "would have used '$2' as sparse tree config"
+                        SPARSE_CONFIG="$2"
+                        shift; shift
+                        ;;
+                --)
+                        shift; break;;
+        esac
+done
 
 DAY_OF_MONTH="$(${DATE} +%d)"
 DAY_OF_WEEK="$(${DATE} +%u)"
