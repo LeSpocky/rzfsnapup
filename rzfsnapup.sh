@@ -55,7 +55,7 @@ then
 else
 	if [ -f "${SPARSE_CONFIG}" ]
 	then
-		echo "using ${SPARSE_CONFIG} as sparse tree config"
+		echo ">> using ${SPARSE_CONFIG} as sparse tree config"
 		. ${SPARSE_CONFIG}
 	else
 		echo "sparse config '${SPARSE_CONFIG}' not found"
@@ -75,6 +75,7 @@ else
 		${RSYNC} -zaH --delete -e "${SSH} -i /root/.ssh/backup" \
 			${1}:${2}/${_folder}/ /${3}/${_folder}
 	done
+	echo ''
 fi
 
 # take snapshot
