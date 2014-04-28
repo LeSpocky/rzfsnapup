@@ -1,11 +1,16 @@
 #!/bin/sh
+# rsync backup to zfs and creating snapshots with zfsnap
+# Copyright 2014 Alexander Dahl <alex@netz39.de>
 
-# set paths here
+set -e
+
+# set your os paths here
 DATE='/bin/date'
 RSYNC='/usr/bin/rsync'
 SSH='/usr/bin/ssh'
 ZFSNAP='/usr/sbin/zfSnap'
 
+# function definitions
 print_usage() {
         echo "Usage: $0 remotehost remotepath localzfs"
         echo ''
@@ -13,6 +18,8 @@ print_usage() {
         echo '  -h             this help'
         echo '  -s sparseconf  config file for sparse trees'
 }
+
+# "main"
 
 # we only use classic getopt because this runs on linux and freebsd
 ARGS=`getopt hs: $*`
@@ -31,7 +38,6 @@ do
                         shift
                         ;;
                 -s)
-                        echo "would have used '$2' as sparse tree config"
                         SPARSE_CONFIG="$2"
                         shift; shift
                         ;;
@@ -40,12 +46,19 @@ do
         esac
 done
 
+# sync with rsync
+if [ -z "${SPARSE_CONFIG}" ]
+then
+    echo "> syncing ${1}:${2}"
+    ${RSYNC} --stats -zaH --delete -e "${SSH} -i /root/.ssh/backup" ${1}:${2}/ /${3}
+    echo ''
+else
+    echo "using ${SPARSE_CONFIG} as sparse tree config"
+fi
+
+# take snapshot
 DAY_OF_MONTH="$(${DATE} +%d)"
 DAY_OF_WEEK="$(${DATE} +%u)"
-
-echo "> syncing ${1}:${2}"
-${RSYNC} --stats -zaH --delete -e "${SSH} -i /root/.ssh/backup" ${1}:${2}/ /${3}
-echo ''
 
 if [ "${DAY_OF_MONTH}" = '12' ]
 then
