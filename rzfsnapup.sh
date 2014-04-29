@@ -3,16 +3,18 @@
 # Copyright 2014 Alexander Dahl <alex@netz39.de>
 
 set -e
+set +x
 
 # set your os paths here
 DATE='/bin/date'
-RSYNC='/usr/bin/rsync'
+RSYNC='/usr/local/bin/rsync'
 SSH='/usr/bin/ssh'
-ZFSNAP='/usr/sbin/zfSnap'
+ZFSNAP='/usr/local/sbin/zfSnap'
 
 # function definitions
 print_usage() {
-	echo "Usage: $0 remotehost remotepath localzfs"
+	echo "Usage: $0 [options] remotehost remotepath localzfs"
+	echo "(on FreeBSD put options _there_ directly after ${0} )"
 	echo ''
 	echo 'Options:'
 	echo '  -h             this help'
