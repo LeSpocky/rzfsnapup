@@ -1,6 +1,6 @@
 #!/bin/sh
 # rsync backup to zfs and creating snapshots with zfsnap
-# Copyright 2014 Alexander Dahl <alex@netz39.de>
+# Copyright 2014,2016 Alexander Dahl <alex@netz39.de>
 
 set -e
 set +x
@@ -19,12 +19,15 @@ print_usage() {
 	echo 'Options:'
 	echo '  -h             this help'
 	echo '  -s sparseconf  config file for sparse trees'
+	echo '  -x             pass --one-file-system to rsync'
 }
 
 # "main"
 
 # we only use classic getopt because this runs on linux and freebsd
-ARGS=`getopt hs: $*`
+X=''
+
+ARGS=`getopt hs:x $*`
 if [ $? -ne 0 ]
 then
 	print_usage
@@ -43,6 +46,10 @@ do
 			SPARSE_CONFIG="$2"
 			shift; shift
 			;;
+		-x)
+			X='--one-file-system'
+			shift
+			;;
 		--)
 			shift; break;;
 	esac
@@ -52,7 +59,7 @@ done
 if [ -z "${SPARSE_CONFIG}" ]
 then
 	echo "> syncing ${1}:${2}"
-	${RSYNC} --stats -zaH --delete -e "${SSH} -i /root/.ssh/backup" ${1}:${2}/ /${3}
+	${RSYNC} --stats -zaH ${X} --delete -e "${SSH} -i /root/.ssh/backup" ${1}:${2}/ /${3}
 	echo ''
 else
 	if [ -f "${SPARSE_CONFIG}" ]
@@ -74,7 +81,7 @@ else
 
 		mkdir -p /${3}/${_folder}
 		echo "> syncing ${1}:${2}/${_folder}"
-		${RSYNC} -zaH --delete -e "${SSH} -i /root/.ssh/backup" \
+		${RSYNC} ${X} -zaH --delete -e "${SSH} -i /root/.ssh/backup" \
 			${1}:${2}/${_folder}/ /${3}/${_folder}
 	done
 	echo ''
