@@ -59,7 +59,7 @@ done
 if [ -z "${SPARSE_CONFIG}" ]
 then
 	echo "> syncing ${1}:${2}"
-	${RSYNC} --stats -zaH ${X} --delete -e "${SSH} -i /root/.ssh/backup" ${1}:${2}/ /${3}
+	${RSYNC} --stats -zahH ${X} --delete -e "${SSH} -i /root/.ssh/backup" ${1}:${2}/ /${3}
 	echo ''
 else
 	if [ -f "${SPARSE_CONFIG}" ]
@@ -81,7 +81,7 @@ else
 
 		mkdir -p /${3}/${_folder}
 		echo "> syncing ${1}:${2}/${_folder}"
-		${RSYNC} ${X} -zaH --delete -e "${SSH} -i /root/.ssh/backup" \
+		${RSYNC} ${X} -zahH --delete -e "${SSH} -i /root/.ssh/backup" \
 			${1}:${2}/${_folder}/ /${3}/${_folder}
 	done
 	echo ''
