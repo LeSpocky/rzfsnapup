@@ -17,17 +17,19 @@ print_usage() {
 	echo "(on FreeBSD put options _there_ directly after ${0} )"
 	echo ''
 	echo 'Options:'
-	echo '  -h             this help'
-	echo '  -s sparseconf  config file for sparse trees'
-	echo '  -x             pass --one-file-system to rsync'
+	echo '  -h                this help'
+	echo '  -i identity_file  path to private key file'
+	echo '  -s sparseconf     config file for sparse trees'
+	echo '  -x                pass --one-file-system to rsync'
 }
 
 # "main"
 
 # we only use classic getopt because this runs on linux and freebsd
+IDENTITY_FILE='/root/.ssh/backup'
 X=''
 
-ARGS=`getopt hs:x $*`
+ARGS=`getopt hi:s:x $*`
 if [ $? -ne 0 ]
 then
 	print_usage
@@ -41,6 +43,10 @@ do
 		-h)
 			print_usage
 			exit 0
+			;;
+		-i)
+			IDENTITY_FILE="$2"
+			shift; shift
 			;;
 		-s)
 			SPARSE_CONFIG="$2"
@@ -59,7 +65,7 @@ done
 if [ -z "${SPARSE_CONFIG}" ]
 then
 	echo "> syncing ${1}:${2}"
-	${RSYNC} --stats -zahH ${X} --delete -e "${SSH} -i /root/.ssh/backup" ${1}:${2}/ /${3}
+	${RSYNC} --stats -zahH ${X} --delete -e "${SSH} -i '${IDENTITY_FILE}'" ${1}:${2}/ /${3}
 	echo ''
 else
 	if [ -f "${SPARSE_CONFIG}" ]
@@ -81,7 +87,7 @@ else
 
 		mkdir -p /${3}/${_folder}
 		echo "> syncing ${1}:${2}/${_folder}"
-		${RSYNC} ${X} -zahH --delete -e "${SSH} -i /root/.ssh/backup" \
+		${RSYNC} ${X} -zahH --delete -e "${SSH} -i '${IDENTITY_FILE}'" \
 			${1}:${2}/${_folder}/ /${3}/${_folder}
 	done
 	echo ''
